@@ -9,7 +9,7 @@ const authenticateToken = require("./middleware/authMiddleware");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-
+app.use("/seed", require("./routes/seed"));
 // ✅ Security Middlewares
 app.use(helmet());
 
