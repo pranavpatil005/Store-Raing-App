@@ -45,7 +45,7 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/ratings/users/stats`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/users/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data);
