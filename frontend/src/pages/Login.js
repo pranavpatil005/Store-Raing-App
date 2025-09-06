@@ -127,7 +127,8 @@ const Login = ({ setRole }) => {
           </p>
         </div>
       )}
-  <p><b>Note: </b>This app is a deployed on free platforms, it may be slow while showing or submitting data. </p>
+  <p><b>Note: </b>This Production version  is a deployed using free tools, it may be slow while showing or submitting data.
+<b>Might take around a minute sometimes,or more</b> </p>
     </div>
   );
 };
