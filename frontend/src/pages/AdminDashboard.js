@@ -36,6 +36,7 @@ const AdminDashboard = () => {
 
   const token = localStorage.getItem("token");
 
+  // Get logged-in admin name
   useEffect(() => {
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -43,6 +44,7 @@ const AdminDashboard = () => {
     }
   }, [token]);
 
+  // Fetch stats
   const fetchStats = async () => {
     try {
       const res = await axios.get("http://localhost:4000/users/stats", {
@@ -54,6 +56,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch all users
   const fetchUsers = async () => {
     try {
       const res = await axios.get("http://localhost:4000/users", {
@@ -65,6 +68,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fetch all stores
   const fetchStores = async () => {
     try {
       const res = await axios.get("http://localhost:4000/stores", {
@@ -166,6 +170,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Sort users by role
   const admins = users.filter((u) => u.role === "ADMIN");
   const storeOwners = users.filter((u) => u.role === "STORE_OWNER");
   const normalUsers = users.filter((u) => u.role === "USER");
@@ -173,14 +178,9 @@ const AdminDashboard = () => {
     (owner) => !stores.some((s) => s.ownerId?.toString() === owner.id?.toString())
   );
 
-  const filteredStores = stores.filter(
-    (s) =>
-      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const roleSortedUsers = [...admins, ...storeOwners, ...normalUsers];
+
+  // Filters
   const filteredUsers = roleSortedUsers.filter((u) => {
     const matchQuery =
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -189,6 +189,13 @@ const AdminDashboard = () => {
     if (roleFilter === "ALL") return matchQuery;
     return matchQuery && u.role === roleFilter;
   });
+
+  const filteredStores = stores.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderStars = (rating) => {
     if (rating === null || rating === undefined) return <span>N/A</span>;
@@ -203,10 +210,7 @@ const AdminDashboard = () => {
     }
     return (
       <span className="ratings-inline">
-        {stars}{" "}
-        <span className="rating-number">
-          ({Math.round(rating * 10) / 10})
-        </span>
+        {stars} <span className="rating-number">({Math.round(rating * 10) / 10})</span>
       </span>
     );
   };
@@ -301,6 +305,37 @@ const AdminDashboard = () => {
         </div>
       )}
 
+      {/* STORES PANEL */}
+      {showStoresPanel && (
+        <div className="panel">
+          <div className="panel-header">
+            <input
+              type="text"
+              placeholder="Search stores, email, address..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="action-button view-btn" onClick={closePanels}>
+              Close
+            </button>
+          </div>
+          <div className="cards-container vertical">
+            {filteredStores.map((store) => (
+              <div className="card" key={store.id}>
+                <h3>{store.name}</h3>
+                <p>Email: {store.email}</p>
+                <p>Address: {store.address}</p>
+                <p>
+                  Owner:{" "}
+                  {users.find((u) => u.id === store.ownerId)?.name || "N/A"}
+                </p>
+                <div className="ratings">{renderStars(store.overallRating)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* USERS PANEL */}
       {showUsersPanel && (
         <div className="panel">
@@ -351,9 +386,7 @@ const AdminDashboard = () => {
                     (ownedStore ? (
                       <>
                         <p>Store: {ownedStore.name}</p>
-                        <div className="ratings">
-                          {renderStars(storeRating)}
-                        </div>
+                        <div className="ratings">{renderStars(storeRating)}</div>
                       </>
                     ) : (
                       <p style={{ color: "red" }}>No store assigned</p>
@@ -384,7 +417,9 @@ const AdminDashboard = () => {
           type="email"
           placeholder="Email"
           value={newUser.email}
-          onChange={(e) => setNewUser({ ...newUser, email: e.target.value.toLowerCase() })}
+          onChange={(e) =>
+            setNewUser({ ...newUser, email: e.target.value.toLowerCase() })
+          }
         />
         <div className="input-group">
           <input
@@ -432,7 +467,7 @@ const AdminDashboard = () => {
         </select>
       </Modal>
 
-     
+      {/* ADD STORE MODAL */}
       <Modal
         show={showAddStoreForm}
         onClose={() => setShowAddStoreForm(false)}
