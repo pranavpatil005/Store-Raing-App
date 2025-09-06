@@ -1,19 +1,16 @@
-// backend/src/seed.js
 const bcrypt = require("bcrypt");
 const { sequelize, User, Store, Rating } = require("./models");
 
 const seed = async () => {
   try {
-    await sequelize.sync({ force: true }); // reset DB
+    await sequelize.sync({ force: true }); 
 
     console.log("✅ Database synced. Seeding...");
 
-    // Password hash
+  
     const passwordHash = await bcrypt.hash("Password@123", 10);
 
-    // -------------------
-    // Create Users
-    // -------------------
+  
     const admin = await User.create({
       name: "Admin User",
       email: "admin@example.com",
@@ -23,29 +20,26 @@ const seed = async () => {
     });
 
     const user1 = await User.create({
-      name: "John Doe",
-      email: "john@example.com",
+      name: "Pranav patil",
+      email: "Pranav@example.com",
       password_hash: passwordHash,
-      address: "123 Main St",
+      address: "123 route",
       role: "USER",
     });
 
     const user2 = await User.create({
-      name: "Jane Smith",
-      email: "jane@example.com",
+      name: "Pranav ",
+      email: "pran@example.com",
       password_hash: passwordHash,
-      address: "456 Elm St",
+      address: "456 colony",
       role: "USER",
     });
 
-    // -------------------
-    // Create Store Owners
-    // -------------------
     const owner1 = await User.create({
       name: "Owner One",
       email: "owner1@example.com",
       password_hash: passwordHash,
-      address: "Owner Address 1",
+      address: "Owner Address ",
       role: "STORE_OWNER",
     });
 
@@ -57,26 +51,22 @@ const seed = async () => {
       role: "STORE_OWNER",
     });
 
-    // -------------------
-    // Create Stores
-    // -------------------
+  
     const store1 = await Store.create({
-      name: "Coffee Paradise",
-      email: "coffee@example.com",
-      address: "789 Coffee St",
+      name: "Rathi book store ",
+      email: "rathibooks@example.com",
+      address: "abc chauwk",
       ownerId: owner1.id,
     });
 
     const store2 = await Store.create({
-      name: "Book Haven",
-      email: "books@example.com",
-      address: "101 Book Rd",
+      name: "heaven cafe",
+      email: "cafe@example.com",
+      address: "101 street ",
       ownerId: owner2.id,
     });
 
-    // -------------------
-    // Optional Ratings
-    // -------------------
+  
     await Rating.create({
       rating: 5,
       userId: user1.id,

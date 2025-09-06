@@ -117,7 +117,7 @@ const StoreOwnerDashboard = () => {
         </div>
         <div className="nav-center">Welcome to Store Owner Dashboard</div>
         <div className="nav-right">
-          <button onClick={() => setShowPasswordModal(true)}>
+          <button onClick={() => setShowPasswordModal(true)} id="update-password-btn">
             Update Password
           </button>
           <button onClick={handleLogout}>

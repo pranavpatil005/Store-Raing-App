@@ -6,7 +6,7 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      len: [3, 50] // name must be 3-50 chars
+      len: [3, 50] 
     }
   },
   email: {
@@ -14,7 +14,7 @@ const User = sequelize.define("User", {
     unique: true,
     allowNull: false
   },
-  password_hash: { // match the DB column
+  password_hash: { 
     type: DataTypes.STRING,
     allowNull: false
   },

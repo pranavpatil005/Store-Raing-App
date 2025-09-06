@@ -139,7 +139,7 @@ const UserDashboard = () => {
         <div className="nav-right">
           <button
             onClick={() => setShowPasswordModal(true)}
-            className="update-password-btn"
+            id="update-password-btn"
           >
             Update Password
           </button>

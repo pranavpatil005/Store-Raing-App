@@ -3,7 +3,7 @@ const router = express.Router();
 const { User, Store, Rating } = require("../models");
 const authenticateToken = require("../middleware/authMiddleware");
 
-// Admin: Get all users (with filters)
+
 router.get("/", authenticateToken, async (req, res) => {
   if (req.user.role !== "ADMIN") {
     return res.status(403).json({ error: "Only admins can view users" });
@@ -25,7 +25,7 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 });
 
-// Admin: Get system stats
+
 router.get("/stats", authenticateToken, async (req, res) => {
   if (req.user.role !== "ADMIN") return res.status(403).json({ error: "Unauthorized" });
 

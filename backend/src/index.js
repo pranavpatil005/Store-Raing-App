@@ -7,17 +7,18 @@ const authenticateToken = require("./middleware/authMiddleware");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middleware
+
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(express.json());
 
-// Routes
+
 app.use("/auth", require("./routes/auth"));
 app.use("/users", require("./routes/users"));
+
 app.use("/stores", require("./routes/stores"));
 app.use("/ratings", require("./routes/ratings"));
 
-// Protected test route
+
 app.get("/dashboard", authenticateToken, (req, res) => {
   res.json({
     message: `Hello ${req.user.email}, you have access to the dashboard!`,
@@ -25,18 +26,23 @@ app.get("/dashboard", authenticateToken, (req, res) => {
   });
 });
 
-// Default route
 app.get("/", (req, res) => {
   res.send("✅ Server is running...");
 });
 
-// Start server
+
+
+
+
+
+
+
 sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Database connected");
 
-    // Sync models (do not alter schema automatically)
+  
     return sequelize.sync({ alter: false });
   })
   .then(() => {

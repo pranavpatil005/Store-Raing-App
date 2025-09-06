@@ -3,7 +3,7 @@ const router = express.Router();
 const { Rating } = require("../models");
 const authenticateToken = require("../middleware/authMiddleware");
 
-// Submit new rating
+
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const { storeId, rating } = req.body;
@@ -11,15 +11,15 @@ router.post("/", authenticateToken, async (req, res) => {
       return res.status(400).json({ error: "StoreId and rating (1-5) are required" });
     }
 
-    // Check if rating exists for this user & store
+    
     let existing = await Rating.findOne({ where: { storeId, userId: req.user.id } });
 
     if (existing) {
-      // Update existing rating
+     
       await existing.update({ rating });
       return res.json(existing);
     } else {
-      // Create new rating
+      
       const newRating = await Rating.create({ storeId, userId: req.user.id, rating });
       return res.status(201).json(newRating);
     }
@@ -29,7 +29,7 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
-// Delete rating
+
 router.delete("/:storeId", authenticateToken, async (req, res) => {
   try {
     const { storeId } = req.params;

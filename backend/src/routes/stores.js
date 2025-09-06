@@ -4,10 +4,10 @@ const { Store, Rating, User } = require("../models");
 const { Op } = require("sequelize");
 const authenticateToken = require("../middleware/authMiddleware");
 
-// GET /stores - fetch all stores with ratings + owner info + optional search
+
 router.get("/", authenticateToken, async (req, res) => {
   try {
-    const { name, address } = req.query; // search filters
+    const { name, address } = req.query; 
     const whereClause = {};
     if (name) whereClause.name = { [Op.iLike]: `%${name}%` };
     if (address) whereClause.address = { [Op.iLike]: `%${address}%` };
@@ -50,7 +50,7 @@ router.get("/", authenticateToken, async (req, res) => {
   }
 });
 
-// POST /stores - admin creates new store
+
 router.post("/", authenticateToken, async (req, res) => {
   if (req.user.role !== "ADMIN") {
     return res.status(403).json({ error: "Only admins can add stores" });
@@ -74,7 +74,6 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
-// GET /stores/:id/ratings - owner or admin sees all ratings for their store
 router.get("/:id/ratings", authenticateToken, async (req, res) => {
   try {
     const store = await Store.findByPk(req.params.id, {

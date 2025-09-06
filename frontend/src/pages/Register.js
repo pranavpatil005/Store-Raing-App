@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import api from "../api/axiosConfig";
 import "../css/Register.css";
 import { Link } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaInfoCircle } from "react-icons/fa";
+import { FaInfoCircle } from "react-icons/fa";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -14,7 +14,8 @@ const Register = () => {
   });
 
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); // "error" or "success"
+  const [messageType, setMessageType] = useState(""); 
+
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -25,8 +26,13 @@ const Register = () => {
     password: false,
   });
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    let value = e.target.value;
+    if (e.target.name === "email") {
+      value = value.toLowerCase(); 
+    }
+    setForm({ ...form, [e.target.name]: value });
+  };
 
   const toggleInfo = (field) => {
     setInfoVisible({ ...infoVisible, [field]: true });
@@ -39,7 +45,7 @@ const Register = () => {
     setMessage(msg);
     setMessageType(type);
     setTimeout(() => {
-      setMessage(""); // message will fade out via CSS
+      setMessage(""); 
     }, 2000);
   };
 
@@ -97,7 +103,10 @@ const Register = () => {
           "error"
         );
       } else {
-        showMessage(err.response?.data?.error || "Registration failed. Try again.", "error");
+        showMessage(
+          err.response?.data?.error || "Registration failed. Try again.",
+          "error"
+        );
       }
     }
   };
@@ -172,7 +181,7 @@ const Register = () => {
           className="eye-icon"
           onClick={() => setShowPassword(!showPassword)}
         >
-          {showPassword ? <FaEyeSlash /> : <FaEye />}
+          {showPassword ? "🙈" : "👁️"}
         </span>
         <FaInfoCircle
           className="info-icon"
@@ -185,7 +194,7 @@ const Register = () => {
         )}
       </div>
 
-      {/* Confirm Password */}
+     
       <div className="input-group">
         <input
           type={showConfirmPassword ? "text" : "password"}
@@ -198,7 +207,7 @@ const Register = () => {
           className="eye-icon"
           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
         >
-          {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+          {showConfirmPassword ? "🙈" : "👁️"}
         </span>
       </div>
 
@@ -210,7 +219,11 @@ const Register = () => {
 
       <div className="message-container">
         {message && (
-          <p className={`message ${messageType === "error" ? "error" : "success"}`}>
+          <p
+            className={`message ${
+              messageType === "error" ? "error" : "success"
+            }`}
+          >
             {message}
           </p>
         )}

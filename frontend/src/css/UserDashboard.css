@@ -1,6 +1,4 @@
-/* src/css/UserDashboard.css - Modern Dashboard */
 
-/* Universal styles and fonts */
 :root {
   --background-light: #f5f6fa;
   --card-background: #ffffff;
@@ -32,7 +30,7 @@ body, html {
   min-height: 100vh;
 }
 
-/* Navbar */
+
 .navbar {
   position: fixed;
   top: 0;
@@ -95,14 +93,30 @@ body, html {
   box-shadow: 0 4px 10px rgba(255, 77, 79, 0.3);
 }
 
-.update-password-btn {
+#update-password-btn {
   background-color: var(--accent-green);
   color: white;
-  border: none;
+  border: 2px solid var(--accent-green);
+    background-color: transparent;
+  color: var(--accent-green);
+  height: 40px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px; 
+  transition: all 0.3s ease;
 }
 
-.update-password-btn:hover {
-  background-color: #218838;
+#update-password-btn:hover {
+  background-color: #19d441;
+ 
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(77, 255, 104, 0.3);
 }
 
 
@@ -150,7 +164,7 @@ body, html {
   transform: translateY(-2px);
 }
 
-/* Stores List and Cards */
+
 .stores-list {
   display: flex;
   flex-direction: column;
@@ -305,7 +319,7 @@ body, html {
   color: #a94442;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .user-dashboard {
     padding: 20px 10px;

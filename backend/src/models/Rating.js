@@ -15,14 +15,14 @@ const Rating = sequelize.define(
   },
   {
     indexes: [
-      { unique: true, fields: ["userId", "storeId"] }, // one rating per user per store
+      { unique: true, fields: ["userId", "storeId"] }, 
     ],
   }
 );
 
-// --- Helper: recalc store average
+
 async function recalcStoreAverage(storeId) {
-  const { Rating: RatingModel } = require("../models"); // avoid circular import
+  const { Rating: RatingModel } = require("../models"); 
   const ratings = await RatingModel.findAll({ where: { storeId } });
 
   const avg = ratings.length
@@ -32,7 +32,7 @@ async function recalcStoreAverage(storeId) {
   await Store.update({ average_rating: avg }, { where: { id: storeId } });
 }
 
-// --- Hooks: keep average_rating always fresh
+
 Rating.afterCreate(async (rating) => {
   await recalcStoreAverage(rating.storeId);
 });

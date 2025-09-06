@@ -3,7 +3,7 @@ const router = express.Router();
 const { Store, Rating } = require("../models");
 const authenticateToken = require("../middleware/authMiddleware");
 
-// GET /stores - fetch all stores with user's rating
+
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const stores = await Store.findAll({
@@ -11,12 +11,12 @@ router.get("/", authenticateToken, async (req, res) => {
         {
           model: Rating,
           where: { userId: req.user.id },
-          required: false, // include even if user has not rated
+          required: false, 
         },
       ],
     });
 
-    // Format response
+    
     const formatted = stores.map((store) => ({
       id: store.id,
       name: store.name,

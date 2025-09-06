@@ -1,4 +1,4 @@
-/* General body & dashboard container */
+
 .store-owner-dashboard {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: #f5f6fa;
@@ -9,7 +9,7 @@
   margin: 0 auto;
 }
 
-/* Navbar */
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -128,10 +128,10 @@
 
 .avg-stars .star.filled {
   color: #fadb14;
-  text-shadow: 0 0 8px #fadb14; /* glow only for filled stars */
+  text-shadow: 0 0 8px #fadb14; 
 }
 
-/* Ratings table */
+
 .ratings-section h3 {
   margin-bottom: 15px;
   color: #333;

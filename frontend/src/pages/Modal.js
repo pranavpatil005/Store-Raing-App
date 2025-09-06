@@ -7,7 +7,7 @@ const Modal = ({ show, onClose, title, children, onConfirm, confirmText = "Save"
       <div className="modal-container">
         <div className="modal-header">
           <h3>{title}</h3>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+         
         </div>
 
         <div className="modal-body">

@@ -18,16 +18,16 @@ export const ToastProvider = ({ children }) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Override global alert, confirm, prompt
+  
   useEffect(() => {
     window.alert = (msg) => addToast(msg, "info");
     window.confirm = (msg) => {
       addToast(msg, "info");
-      return true; // always "OK" for simplicity
+      return true; 
     };
     window.prompt = (msg, defaultVal = "") => {
       addToast(msg, "info");
-      return defaultVal; // default value
+      return defaultVal; 
     };
   }, []);
 
