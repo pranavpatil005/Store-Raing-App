@@ -377,17 +377,18 @@ const AdminDashboard = () => {
               return (
                 <div className="card" key={user.id}>
                   <h3>
-                    <span
-                      className={`role-dot ${
-                        user.role === "ADMIN"
-                          ? "green"
-                          : user.role === "STORE_OWNER"
-                          ? "orange"
-                          : "blue"
-                      }`}
-                    ></span>
-                    {user.name.toUpperCase()}
-                  </h3>
+  <span
+    className={`role-dot ${
+      user.role?.toUpperCase() === "ADMIN"
+        ? "green"
+        : user.role?.toUpperCase() === "STORE_OWNER"
+        ? "orange"
+        : "blue"
+    }`}
+  > </span>
+  {user.name.toUpperCase()}
+ </h3>
+
                   <p>Email: {user.email}</p>
                   <p>Address: {user.address}</p>
                   <p>Role: {user.role}</p>
