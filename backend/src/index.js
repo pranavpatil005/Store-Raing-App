@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 4000;
 app.use(helmet());
 
 // Allow only your frontend (React)
-const allowedOrigins = ["http://localhost:3000", "*"]; // change/add domains when deploying
+const allowedOrigins = ["https://store-rating-app-omega.vercel.app"]; // change/add domains when deploying
 app.use(
   cors({
     origin: allowedOrigins,
