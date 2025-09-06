@@ -2,6 +2,8 @@
 
 A full-stack web application to **rate and review stores**, providing role-based dashboards for Admins, Store Owners, and Users. The app emphasizes **security, usability, and real-time interactivity**.
 
+🔗 https://store-rating-app-omega.vercel.app
+ 
 ---
 
 ## **Project Overview**
