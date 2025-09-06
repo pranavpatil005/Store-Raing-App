@@ -1,3 +1,4 @@
+// AdminDashboard.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "./Modal";
@@ -34,49 +35,61 @@ const AdminDashboard = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const token = localStorage.getItem("token");
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
+  // Get logged-in admin name
   useEffect(() => {
     if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserName(payload.name);
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUserName(payload.name || "");
+      } catch (err) {
+        console.error("Invalid token:", err);
+      }
     }
   }, [token]);
 
-  // FIXED: map backend snake_case to camelCase
+  // Fetch stats
   const fetchStats = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/users/stats", {
+      const res = await axios.get(`${API_URL}/users/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setStats({
-        userCount: res.data.user_count || 0,
-        storeCount: res.data.store_count || 0,
-        ratingCount: res.data.rating_count || 0,
-      });
+      setStats(res.data || { userCount: 0, storeCount: 0, ratingCount: 0 });
     } catch (err) {
       console.error("Failed to fetch stats:", err);
+      setStats({ userCount: 0, storeCount: 0, ratingCount: 0 });
     }
   };
 
+  // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/users", {
+      const res = await axios.get(`${API_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data || []);
     } catch (err) {
       console.error("Failed to fetch users:", err);
+      setUsers([]);
     }
   };
 
+  // Fetch all stores
   const fetchStores = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/stores", {
+      const res = await axios.get(`${API_URL}/stores`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setStores(res.data || []);
+      const formatted = res.data.map(store => ({
+        ...store,
+        overallRating: store.overallRating ?? 0,
+        ownerId: store.ownerId ?? store.userId ?? null,
+      }));
+      setStores(formatted);
     } catch (err) {
       console.error("Failed to fetch stores:", err);
+      setStores([]);
     }
   };
 
@@ -93,6 +106,7 @@ const AdminDashboard = () => {
 
   const handleAddUser = async () => {
     const { name, email, password, confirmPassword, address, role } = newUser;
+
     if (!name || !email || !password || !confirmPassword || !address || !role) {
       setUserError("Fill all user fields");
       return;
@@ -107,16 +121,20 @@ const AdminDashboard = () => {
     }
     const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
     if (!passwordRegex.test(password)) {
-      setUserError("Password must be 8-16 chars, 1 uppercase & 1 special char");
+      setUserError(
+        "Password must be 8-16 characters, include 1 uppercase & 1 special char"
+      );
       return;
     }
     if (password !== confirmPassword) {
       setUserError("Passwords do not match");
       return;
     }
+
     setUserError("");
+
     try {
-      await axios.post("http://localhost:4000/auth/register", newUser, {
+      await axios.post(`${API_URL}/auth/register`, newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("User added successfully!");
@@ -138,6 +156,7 @@ const AdminDashboard = () => {
 
   const handleAddStore = async () => {
     const { name, email, address, ownerId } = newStore;
+
     if (!name || !email || !address || !ownerId) {
       setStoreError("Fill all store fields");
       return;
@@ -146,9 +165,11 @@ const AdminDashboard = () => {
       setStoreError("Address cannot exceed 400 characters");
       return;
     }
+
     setStoreError("");
+
     try {
-      await axios.post("http://localhost:4000/stores", newStore, {
+      await axios.post(`${API_URL}/stores`, newStore, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Store added successfully!");
@@ -161,6 +182,7 @@ const AdminDashboard = () => {
     }
   };
 
+  // Sort users by role
   const admins = users.filter((u) => u.role === "ADMIN");
   const storeOwners = users.filter((u) => u.role === "STORE_OWNER");
   const normalUsers = users.filter((u) => u.role === "USER");
@@ -169,6 +191,7 @@ const AdminDashboard = () => {
   );
   const roleSortedUsers = [...admins, ...storeOwners, ...normalUsers];
 
+  // Filters
   const filteredUsers = roleSortedUsers.filter((u) => {
     const matchQuery =
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -188,19 +211,29 @@ const AdminDashboard = () => {
   const renderStars = (rating) => {
     if (rating === null || rating === undefined) return <span>N/A</span>;
     const rounded = Math.round(rating);
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={i <= rounded ? "star filled" : "star"}>
-          ★
-        </span>
-      );
-    }
     return (
       <span className="ratings-inline">
-        {stars} <span className="rating-number">({Math.round(rating * 10) / 10})</span>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <span key={i} className={i <= rounded ? "star filled" : "star"}>
+            ★
+          </span>
+        ))}
+        <span className="rating-number">({Math.round(rating * 10) / 10})</span>
       </span>
     );
+  };
+
+  const openStoresPanel = () => {
+    setShowStoresPanel(true);
+    setShowUsersPanel(false);
+  };
+  const openUsersPanel = () => {
+    setShowUsersPanel(true);
+    setShowStoresPanel(false);
+  };
+  const closePanels = () => {
+    setShowStoresPanel(false);
+    setShowUsersPanel(false);
   };
 
   return (
@@ -249,19 +282,31 @@ const AdminDashboard = () => {
         <div className="manage-cards">
           <div className="manage-card">
             <h3>Manage Stores</h3>
-            <button className="action-button add-btn" onClick={() => setShowAddStoreForm(true)}>
+            <button
+              className="action-button add-btn"
+              onClick={() => {
+                setShowAddStoreForm(true);
+                setStoreError("");
+              }}
+            >
               <FaPlus /> Add Store
             </button>
-            <button className="action-button view-btn" onClick={() => setShowStoresPanel(true)}>
+            <button className="action-button view-btn" onClick={openStoresPanel}>
               View All Stores
             </button>
           </div>
           <div className="manage-card">
             <h3>Manage Users</h3>
-            <button className="action-button add-btn" onClick={() => setShowAddUserForm(true)}>
+            <button
+              className="action-button add-btn"
+              onClick={() => {
+                setShowAddUserForm(true);
+                setUserError("");
+              }}
+            >
               <FaPlus /> Add User
             </button>
-            <button className="action-button view-btn" onClick={() => setShowUsersPanel(true)}>
+            <button className="action-button view-btn" onClick={openUsersPanel}>
               View All Users
             </button>
           </div>
@@ -274,32 +319,27 @@ const AdminDashboard = () => {
           <div className="panel-header">
             <input
               type="text"
-              placeholder="Search stores..."
+              placeholder="Search stores, email, address..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="action-button view-btn" onClick={() => setShowStoresPanel(false)}>
+            <button className="action-button view-btn" onClick={closePanels}>
               Close
             </button>
           </div>
           <div className="cards-container vertical">
-            {filteredStores.length > 0 ? (
-              filteredStores.map((store) => (
-                <div className="card" key={store.id}>
-                  <h3>{store.name}</h3>
-                  <p>Email: {store.email}</p>
-                  <p>Address: {store.address}</p>
-                  <p>
-                    Owner:{" "}
-                    {users.find((u) => u.id?.toString() === store.ownerId?.toString())?.name ||
-                      "N/A"}
-                  </p>
-                  <div className="ratings">{renderStars(store.overallRating)}</div>
-                </div>
-              ))
-            ) : (
-              <p>No stores found</p>
-            )}
+            {filteredStores.length === 0 && <p>No stores found</p>}
+            {filteredStores.map((store) => (
+              <div className="card" key={store.id}>
+                <h3>{store.name}</h3>
+                <p>Email: {store.email}</p>
+                <p>Address: {store.address}</p>
+                <p>
+                  Owner: {users.find((u) => u.id === store.ownerId)?.name || "N/A"}
+                </p>
+                <div className="ratings">{renderStars(store.overallRating)}</div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -310,7 +350,7 @@ const AdminDashboard = () => {
           <div className="panel-header">
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Search users,email,address,roles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -318,54 +358,51 @@ const AdminDashboard = () => {
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
             >
-              <option value="ALL">All Roles</option>
+              <option value="ALL">Filter Roles</option>
               <option value="ADMIN">Admin</option>
               <option value="STORE_OWNER">Store Owner</option>
               <option value="USER">User</option>
             </select>
-            <button className="action-button view-btn" onClick={() => setShowUsersPanel(false)}>
+            <button className="action-button view-btn" onClick={closePanels}>
               Close
             </button>
           </div>
           <div className="cards-container vertical">
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => {
-                const ownedStore = stores.find(
-                  (s) => s.ownerId?.toString() === user.id?.toString()
-                );
-                const storeRating = ownedStore?.overallRating ?? null;
-                return (
-                  <div className="card" key={user.id}>
-                    <h3>
-                      <span
-                        className={`role-dot ${
-                          user.role === "ADMIN"
-                            ? "green"
-                            : user.role === "STORE_OWNER"
-                            ? "orange"
-                            : "blue"
-                        }`}
-                      ></span>
-                      {user.name.toUpperCase()}
-                    </h3>
-                    <p>Email: {user.email}</p>
-                    <p>Address: {user.address}</p>
-                    <p>Role: {user.role}</p>
-                    {user.role === "STORE_OWNER" &&
-                      (ownedStore ? (
-                        <>
-                          <p>Store: {ownedStore.name}</p>
-                          <div className="ratings">{renderStars(storeRating)}</div>
-                        </>
-                      ) : (
-                        <p style={{ color: "red" }}>No store assigned</p>
-                      ))}
-                  </div>
-                );
-              })
-            ) : (
-              <p>No users found</p>
-            )}
+            {filteredUsers.length === 0 && <p>No users found</p>}
+            {filteredUsers.map((user) => {
+              const ownedStore = stores.find(
+                (s) => s.ownerId?.toString() === user.id?.toString()
+              );
+              const storeRating = ownedStore?.overallRating ?? null;
+              return (
+                <div className="card" key={user.id}>
+                  <h3>
+                    <span
+                      className={`role-dot ${
+                        user.role === "ADMIN"
+                          ? "green"
+                          : user.role === "STORE_OWNER"
+                          ? "orange"
+                          : "blue"
+                      }`}
+                    ></span>
+                    {user.name.toUpperCase()}
+                  </h3>
+                  <p>Email: {user.email}</p>
+                  <p>Address: {user.address}</p>
+                  <p>Role: {user.role}</p>
+                  {user.role === "STORE_OWNER" &&
+                    (ownedStore ? (
+                      <>
+                        <p>Store: {ownedStore.name}</p>
+                        <div className="ratings">{renderStars(storeRating)}</div>
+                      </>
+                    ) : (
+                      <p style={{ color: "red" }}>No store assigned</p>
+                    ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -389,7 +426,9 @@ const AdminDashboard = () => {
           type="email"
           placeholder="Email"
           value={newUser.email}
-          onChange={(e) => setNewUser({ ...newUser, email: e.target.value.toLowerCase() })}
+          onChange={(e) =>
+            setNewUser({ ...newUser, email: e.target.value.toLowerCase() })
+          }
         />
         <div className="input-group">
           <input
@@ -398,7 +437,10 @@ const AdminDashboard = () => {
             value={newUser.password}
             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
           />
-          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+          <span
+            className="eye-icon"
+            onClick={() => setShowPassword(!showPassword)}
+          >
             {showPassword ? "🙈" : "👁️"}
           </span>
         </div>
@@ -407,9 +449,14 @@ const AdminDashboard = () => {
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm Password"
             value={newUser.confirmPassword}
-            onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
+            onChange={(e) =>
+              setNewUser({ ...newUser, confirmPassword: e.target.value })
+            }
           />
-          <span className="eye-icon" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <span
+            className="eye-icon"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          >
             {showConfirmPassword ? "🙈" : "👁️"}
           </span>
         </div>
@@ -448,7 +495,9 @@ const AdminDashboard = () => {
           type="email"
           placeholder="Store Email"
           value={newStore.email}
-          onChange={(e) => setNewStore({ ...newStore, email: e.target.value.toLowerCase() })}
+          onChange={(e) =>
+            setNewStore({ ...newStore, email: e.target.value.toLowerCase() })
+          }
         />
         <input
           type="text"
@@ -469,7 +518,9 @@ const AdminDashboard = () => {
             ))}
           </select>
         ) : (
-          <p style={{ color: "red" }}>No available store owners. Add a store owner first.</p>
+          <p style={{ color: "red" }}>
+            No available store owners. Add a store owner first.
+          </p>
         )}
       </Modal>
     </div>
