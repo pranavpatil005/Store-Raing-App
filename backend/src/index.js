@@ -10,11 +10,10 @@ const authenticateToken = require("./middleware/authMiddleware");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// ✅ Security Middlewares
 app.use(helmet());
 
-// Allow only your frontend (React)
-const allowedOrigins = ["http://localhost:3000"]; // change/add domains when deploying
+
+const allowedOrigins = ["http://localhost:3000"]; 
 app.use(
   cors({
     origin: allowedOrigins,
@@ -25,20 +24,20 @@ app.use(
 
 app.use(express.json());
 
-// ✅ Rate Limiting
+
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per window
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
   message: {
     status: 429,
     error: "Too many requests, please try again later.",
   },
 });
 
-app.use("/auth", apiLimiter); // protect auth routes more strictly
-app.use("/ratings", apiLimiter); // protect rating endpoints
+app.use("/auth", apiLimiter); 
+app.use("/ratings", apiLimiter); 
 
-// ✅ Routes
+
 app.use("/auth", require("./routes/auth"));
 app.use("/users", require("./routes/users"));
 app.use("/stores", require("./routes/stores"));
@@ -55,7 +54,7 @@ app.get("/", (req, res) => {
   res.send("✅ Server is running...");
 });
 
-// ✅ Database + Server Start
+
 sequelize
   .authenticate()
   .then(() => {
