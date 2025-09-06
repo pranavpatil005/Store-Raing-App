@@ -27,7 +27,7 @@ const StoreOwnerDashboard = () => {
 
   const fetchStoreRatings = async (ownerId) => {
     try {
-      const resStores = await axios.get("http://localhost:4000/stores", {
+      const resStores = await axios.get(`${process.env.REACT_APP_API_URL}/stores`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -40,7 +40,7 @@ const StoreOwnerDashboard = () => {
       setStore(ownedStore);
 
       const resRatings = await axios.get(
-        `http://localhost:4000/stores/${ownedStore.id}/ratings`,
+        `${process.env.REACT_APP_API_URL}/stores/${ownedStore.id}/ratings`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -70,7 +70,7 @@ const StoreOwnerDashboard = () => {
 
     try {
       await axios.put(
-        "http://localhost:4000/auth/update-password",
+        `${process.env.REACT_APP_API_URL}/auth/update-password`,
         { newPassword: password },
         { headers: { Authorization: `Bearer ${token}` } }
       );

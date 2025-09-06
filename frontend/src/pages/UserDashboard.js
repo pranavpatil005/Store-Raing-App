@@ -24,7 +24,7 @@ const UserDashboard = () => {
 
   const fetchStores = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/stores", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/stores`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -55,7 +55,7 @@ const UserDashboard = () => {
     }
     try {
       await axios.post(
-        `http://localhost:4000/ratings`,
+        `${process.env.REACT_APP_API_URL}/ratings`,
         { storeId, rating },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -73,7 +73,7 @@ const UserDashboard = () => {
       const existingRating = store.userRating;
       if (!existingRating) return;
 
-      await axios.delete(`http://localhost:4000/ratings/${storeId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/ratings/${storeId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRatingMode({ ...ratingMode, [storeId]: false });
@@ -102,7 +102,7 @@ const UserDashboard = () => {
 
     try {
       await axios.put(
-        "http://localhost:4000/auth/update-password",
+        `${process.env.REACT_APP_API_URL}/auth/update-password`,
         { newPassword: password },
         { headers: { Authorization: `Bearer ${token}` } }
       );

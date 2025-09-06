@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 4000;
 app.use(helmet());
 
 // Allow only your frontend (React)
-const allowedOrigins = ["http://localhost:3000"]; // change/add domains when deploying
+const allowedOrigins = ["http://localhost:3000", "*"]; // change/add domains when deploying
 app.use(
   cors({
     origin: allowedOrigins,
@@ -60,13 +60,15 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Database connected");
-    return sequelize.sync({ alter: false });
+    return sequelize.sync({ alter: true });
+
   })
   .then(() => {
     console.log("✅ All models synced with database");
-    app.listen(PORT, () =>
-      console.log(`🚀 Server running on http://localhost:${PORT}`)
-    );
+   app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
+
   })
   .catch((err) => {
     console.error("❌ Database connection failed:", err);

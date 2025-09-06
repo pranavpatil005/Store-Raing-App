@@ -45,7 +45,7 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/users/stats", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/ratings/users/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats(res.data);
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/users", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
 
   const fetchStores = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/stores", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/stores`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStores(res.data);
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
     setUserError("");
 
     try {
-      await axios.post("http://localhost:4000/auth/register", newUser, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/auth/register`, newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("User added successfully!");
@@ -153,7 +153,7 @@ const AdminDashboard = () => {
     setStoreError("");
 
     try {
-      await axios.post("http://localhost:4000/stores", newStore, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/stores`, newStore, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Store added successfully!");
