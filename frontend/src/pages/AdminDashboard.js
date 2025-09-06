@@ -1,4 +1,3 @@
-// AdminDashboard.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "./Modal";
@@ -35,9 +34,7 @@ const AdminDashboard = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const token = localStorage.getItem("token");
-  const API_URL = process.env.REACT_APP_API_URL;
 
-  // Get logged-in admin name
   useEffect(() => {
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -45,10 +42,10 @@ const AdminDashboard = () => {
     }
   }, [token]);
 
-  // Fetch stats
+  // FIXED: map backend snake_case to camelCase
   const fetchStats = async () => {
     try {
-      const res = await axios.get(`${API_URL}/users/stats`, {
+      const res = await axios.get("http://localhost:4000/users/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStats({
@@ -61,25 +58,23 @@ const AdminDashboard = () => {
     }
   };
 
-  // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${API_URL}/users`, {
+      const res = await axios.get("http://localhost:4000/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsers(res.data);
+      setUsers(res.data || []);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
   };
 
-  // Fetch all stores
   const fetchStores = async () => {
     try {
-      const res = await axios.get(`${API_URL}/stores`, {
+      const res = await axios.get("http://localhost:4000/stores", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setStores(res.data);
+      setStores(res.data || []);
     } catch (err) {
       console.error("Failed to fetch stores:", err);
     }
@@ -96,7 +91,6 @@ const AdminDashboard = () => {
     window.location.href = "/login";
   };
 
-  // Add User
   const handleAddUser = async () => {
     const { name, email, password, confirmPassword, address, role } = newUser;
     if (!name || !email || !password || !confirmPassword || !address || !role) {
@@ -111,23 +105,18 @@ const AdminDashboard = () => {
       setUserError("Address cannot exceed 400 characters");
       return;
     }
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$/;
     if (!passwordRegex.test(password)) {
-      setUserError(
-        "Password must be 8-16 characters, include 1 uppercase & 1 special char"
-      );
+      setUserError("Password must be 8-16 chars, 1 uppercase & 1 special char");
       return;
     }
     if (password !== confirmPassword) {
       setUserError("Passwords do not match");
       return;
     }
-
     setUserError("");
-
     try {
-      await axios.post(`${API_URL}/auth/register`, newUser, {
+      await axios.post("http://localhost:4000/auth/register", newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("User added successfully!");
@@ -147,7 +136,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // Add Store
   const handleAddStore = async () => {
     const { name, email, address, ownerId } = newStore;
     if (!name || !email || !address || !ownerId) {
@@ -158,11 +146,9 @@ const AdminDashboard = () => {
       setStoreError("Address cannot exceed 400 characters");
       return;
     }
-
     setStoreError("");
-
     try {
-      await axios.post(`${API_URL}/stores`, newStore, {
+      await axios.post("http://localhost:4000/stores", newStore, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Store added successfully!");
@@ -175,19 +161,14 @@ const AdminDashboard = () => {
     }
   };
 
-  // Sort users by role
   const admins = users.filter((u) => u.role === "ADMIN");
   const storeOwners = users.filter((u) => u.role === "STORE_OWNER");
   const normalUsers = users.filter((u) => u.role === "USER");
-
-  const roleSortedUsers = [...admins, ...storeOwners, ...normalUsers];
-
-  // Store owners without stores
   const availableStoreOwners = storeOwners.filter(
     (owner) => !stores.some((s) => s.ownerId?.toString() === owner.id?.toString())
   );
+  const roleSortedUsers = [...admins, ...storeOwners, ...normalUsers];
 
-  // Filters
   const filteredUsers = roleSortedUsers.filter((u) => {
     const matchQuery =
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -197,10 +178,11 @@ const AdminDashboard = () => {
     return matchQuery && u.role === roleFilter;
   });
 
-  const filteredStores = stores.filter((s) =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.address.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStores = stores.filter(
+    (s) =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderStars = (rating) => {
@@ -221,19 +203,6 @@ const AdminDashboard = () => {
     );
   };
 
-  const openStoresPanel = () => {
-    setShowStoresPanel(true);
-    setShowUsersPanel(false);
-  };
-  const openUsersPanel = () => {
-    setShowUsersPanel(true);
-    setShowStoresPanel(false);
-  };
-  const closePanels = () => {
-    setShowStoresPanel(false);
-    setShowUsersPanel(false);
-  };
-
   return (
     <div className="admin-dashboard">
       {/* NAVBAR */}
@@ -242,7 +211,7 @@ const AdminDashboard = () => {
           <FaUserTie className="admin-icon" />
           <span>{userName.toUpperCase()}</span>
         </div>
-        <div className="nav-center">Admin Dashboard</div>
+        <div className="nav-center">Welcome to Admin Dashboard</div>
         <div className="nav-right">
           <button onClick={handleLogout}>
             <FaSignOutAlt /> Logout
@@ -267,7 +236,7 @@ const AdminDashboard = () => {
           </div>
         </div>
         <div className="stat-card">
-          <FaStar className="stat-icon rating-icon" />
+          <FaStar className="stat-icon star-icon" />
           <div className="stat-info">
             <p className="stat-number">{stats.ratingCount}</p>
             <p className="stat-label">Ratings</p>
@@ -275,82 +244,219 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* ACTION BUTTONS */}
-      <div className="action-buttons">
-        <button onClick={() => setShowAddUserForm(true)}>
-          <FaPlus /> Add User
-        </button>
-        <button onClick={() => setShowAddStoreForm(true)}>
-          <FaPlus /> Add Store
-        </button>
-        <button onClick={openUsersPanel}>View Users</button>
-        <button onClick={openStoresPanel}>View Stores</button>
-      </div>
+      {/* MAIN ACTIONS */}
+      {!showStoresPanel && !showUsersPanel && (
+        <div className="manage-cards">
+          <div className="manage-card">
+            <h3>Manage Stores</h3>
+            <button className="action-button add-btn" onClick={() => setShowAddStoreForm(true)}>
+              <FaPlus /> Add Store
+            </button>
+            <button className="action-button view-btn" onClick={() => setShowStoresPanel(true)}>
+              View All Stores
+            </button>
+          </div>
+          <div className="manage-card">
+            <h3>Manage Users</h3>
+            <button className="action-button add-btn" onClick={() => setShowAddUserForm(true)}>
+              <FaPlus /> Add User
+            </button>
+            <button className="action-button view-btn" onClick={() => setShowUsersPanel(true)}>
+              View All Users
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STORES PANEL */}
+      {showStoresPanel && (
+        <div className="panel">
+          <div className="panel-header">
+            <input
+              type="text"
+              placeholder="Search stores..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="action-button view-btn" onClick={() => setShowStoresPanel(false)}>
+              Close
+            </button>
+          </div>
+          <div className="cards-container vertical">
+            {filteredStores.length > 0 ? (
+              filteredStores.map((store) => (
+                <div className="card" key={store.id}>
+                  <h3>{store.name}</h3>
+                  <p>Email: {store.email}</p>
+                  <p>Address: {store.address}</p>
+                  <p>
+                    Owner:{" "}
+                    {users.find((u) => u.id?.toString() === store.ownerId?.toString())?.name ||
+                      "N/A"}
+                  </p>
+                  <div className="ratings">{renderStars(store.overallRating)}</div>
+                </div>
+              ))
+            ) : (
+              <p>No stores found</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* USERS PANEL */}
+      {showUsersPanel && (
+        <div className="panel">
+          <div className="panel-header">
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+            >
+              <option value="ALL">All Roles</option>
+              <option value="ADMIN">Admin</option>
+              <option value="STORE_OWNER">Store Owner</option>
+              <option value="USER">User</option>
+            </select>
+            <button className="action-button view-btn" onClick={() => setShowUsersPanel(false)}>
+              Close
+            </button>
+          </div>
+          <div className="cards-container vertical">
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => {
+                const ownedStore = stores.find(
+                  (s) => s.ownerId?.toString() === user.id?.toString()
+                );
+                const storeRating = ownedStore?.overallRating ?? null;
+                return (
+                  <div className="card" key={user.id}>
+                    <h3>
+                      <span
+                        className={`role-dot ${
+                          user.role === "ADMIN"
+                            ? "green"
+                            : user.role === "STORE_OWNER"
+                            ? "orange"
+                            : "blue"
+                        }`}
+                      ></span>
+                      {user.name.toUpperCase()}
+                    </h3>
+                    <p>Email: {user.email}</p>
+                    <p>Address: {user.address}</p>
+                    <p>Role: {user.role}</p>
+                    {user.role === "STORE_OWNER" &&
+                      (ownedStore ? (
+                        <>
+                          <p>Store: {ownedStore.name}</p>
+                          <div className="ratings">{renderStars(storeRating)}</div>
+                        </>
+                      ) : (
+                        <p style={{ color: "red" }}>No store assigned</p>
+                      ))}
+                  </div>
+                );
+              })
+            ) : (
+              <p>No users found</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ADD USER MODAL */}
-      {showAddUserForm && (
-        <Modal onClose={() => setShowAddUserForm(false)}>
-          <h2>Add User</h2>
-          {userError && <p className="error-msg">{userError}</p>}
-          <input
-            placeholder="Name"
-            value={newUser.name}
-            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-          />
-          <input
-            placeholder="Email"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-          />
+      <Modal
+        show={showAddUserForm}
+        onClose={() => setShowAddUserForm(false)}
+        title="Add User"
+        onConfirm={handleAddUser}
+        confirmText="Add User"
+      >
+        {userError && <p style={{ color: "red" }}>{userError}</p>}
+        <input
+          type="text"
+          placeholder="Name"
+          value={newUser.name}
+          onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={newUser.email}
+          onChange={(e) => setNewUser({ ...newUser, email: e.target.value.toLowerCase() })}
+        />
+        <div className="input-group">
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={newUser.password}
             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
           />
+          <span className="eye-icon" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? "🙈" : "👁️"}
+          </span>
+        </div>
+        <div className="input-group">
           <input
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm Password"
             value={newUser.confirmPassword}
             onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
           />
-          <input
-            placeholder="Address"
-            value={newUser.address}
-            onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
-          />
-          <select
-            value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-          >
-            <option value="USER">USER</option>
-            <option value="STORE_OWNER">STORE_OWNER</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
-          <button onClick={handleAddUser}>Add User</button>
-        </Modal>
-      )}
+          <span className="eye-icon" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+            {showConfirmPassword ? "🙈" : "👁️"}
+          </span>
+        </div>
+        <input
+          type="text"
+          placeholder="Address"
+          value={newUser.address}
+          onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
+        />
+        <select
+          value={newUser.role}
+          onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+        >
+          <option value="USER">USER</option>
+          <option value="STORE_OWNER">STORE_OWNER</option>
+          <option value="ADMIN">ADMIN</option>
+        </select>
+      </Modal>
 
       {/* ADD STORE MODAL */}
-      {showAddStoreForm && (
-        <Modal onClose={() => setShowAddStoreForm(false)}>
-          <h2>Add Store</h2>
-          {storeError && <p className="error-msg">{storeError}</p>}
-          <input
-            placeholder="Name"
-            value={newStore.name}
-            onChange={(e) => setNewStore({ ...newStore, name: e.target.value })}
-          />
-          <input
-            placeholder="Email"
-            value={newStore.email}
-            onChange={(e) => setNewStore({ ...newStore, email: e.target.value })}
-          />
-          <input
-            placeholder="Address"
-            value={newStore.address}
-            onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
-          />
+      <Modal
+        show={showAddStoreForm}
+        onClose={() => setShowAddStoreForm(false)}
+        title="Add Store"
+        onConfirm={handleAddStore}
+        confirmText="Add Store"
+      >
+        {storeError && <p style={{ color: "red" }}>{storeError}</p>}
+        <input
+          type="text"
+          placeholder="Store Name"
+          value={newStore.name}
+          onChange={(e) => setNewStore({ ...newStore, name: e.target.value })}
+        />
+        <input
+          type="email"
+          placeholder="Store Email"
+          value={newStore.email}
+          onChange={(e) => setNewStore({ ...newStore, email: e.target.value.toLowerCase() })}
+        />
+        <input
+          type="text"
+          placeholder="Address"
+          value={newStore.address}
+          onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
+        />
+        {availableStoreOwners.length > 0 ? (
           <select
             value={newStore.ownerId}
             onChange={(e) => setNewStore({ ...newStore, ownerId: e.target.value })}
@@ -358,96 +464,14 @@ const AdminDashboard = () => {
             <option value="">Select Owner</option>
             {availableStoreOwners.map((u) => (
               <option key={u.id} value={u.id}>
-                {u.name}
+                {u.name} ({u.email})
               </option>
             ))}
           </select>
-          <button onClick={handleAddStore}>Add Store</button>
-        </Modal>
-      )}
-
-      {/* USERS PANEL */}
-      {showUsersPanel && (
-        <div className="panel users-panel">
-          <h3>All Users</h3>
-          <input
-            placeholder="Search users..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
-            <option value="ALL">ALL</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="STORE_OWNER">STORE_OWNER</option>
-            <option value="USER">USER</option>
-          </select>
-          <button onClick={closePanels}>Close</button>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Address</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>
-                    <span
-                      className="role-dot"
-                      style={{ backgroundColor: u.role === "ADMIN" ? "green" : "blue" }}
-                    ></span>
-                    {u.role}
-                  </td>
-                  <td>{u.address}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* STORES PANEL */}
-      {showStoresPanel && (
-        <div className="panel stores-panel">
-          <h3>All Stores</h3>
-          <input
-            placeholder="Search stores..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button onClick={closePanels}>Close</button>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Owner</th>
-                <th>Address</th>
-                <th>Avg Rating</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStores.map((s) => {
-                const owner = users.find((u) => u.id?.toString() === s.ownerId?.toString());
-                return (
-                  <tr key={s.id}>
-                    <td>{s.name}</td>
-                    <td>{s.email}</td>
-                    <td>{owner?.name || "N/A"}</td>
-                    <td>{s.address}</td>
-                    <td>{renderStars(s.avgRating)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+        ) : (
+          <p style={{ color: "red" }}>No available store owners. Add a store owner first.</p>
+        )}
+      </Modal>
     </div>
   );
 };
