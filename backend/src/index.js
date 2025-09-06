@@ -10,10 +10,10 @@ const authenticateToken = require("./middleware/authMiddleware");
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// ✅ Security Middlewares
+
 app.use(helmet());
 
-// Allow only your frontend (React)
+
 const allowedOrigins = ["https://store-rating-app-omega.vercel.app"]; // change/add domains when deploying
 app.use(
   cors({
