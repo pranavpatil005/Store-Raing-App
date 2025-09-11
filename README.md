@@ -2,8 +2,19 @@
 
 A full-stack web application to **rate and review stores**, providing role-based dashboards for Admins, Store Owners, and Users. The app emphasizes **security, usability, and real-time interactivity**.
 
-🔗 Preview : https://store-rating-app-omega.vercel.app (Uses free production tools ,might fail occasionally.)
+🔗 Preview :    https://store-rating-app-omega.vercel.app (Uses free production tools ,might fail occasionally.)
  
+   Tools used: 
+   
+            1.Neon for database and models.
+
+            2.Render for backend servers.
+            
+            3. Vercel for frontend deployment.
+
+          
+            
+      
 ---
 🔗 Demo video : https://youtu.be/4GYy6xpAmV0
 ---
